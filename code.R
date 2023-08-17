@@ -1,21 +1,10 @@
 ###############################################################
-#### DIFFERENCIAL EXPRESION ANALYSIS WITH edgeR & limma-trend
-## TFM KAREN JUNE 2023
-
-### Tots els comentaris que he posat poden ser una guia per tu per saber el que s'ha fet
-#Jo ho editaria una mica, deixant alguns comentaris on s'expliqui que fa el codi
-#Al TFM posa la informació més rellevant, es a dir quins paràmetres i paquet de R s'han fet servir per filtrar, normalitzar...
-#Quins paràmetres i pq s'han fet servir per el DE...
-#És a dir, aquí només deixa la info referent a que fa cada linea de codi i al TFM dona una explicació de perquè has fet una cosa o l'altre
-## Una altra cosa! Alguna passa d'aquest codi l'he treta de chatGPT, per al codi no passa res però canvia tots els comentaris i posa'ls amb les teves paraules
-#No sigui cosa que tenguin algun programa que ho detecti i et diguin alguna cosa!
+#### DIFFERENCIAL GENE EXPRESION ANALYSIS WITH edgeR & limma-trend
 
 library(edgeR)
 library(limma)
 
 rm(list=ls())
-
-#To visualize a DGEList object just type the name, do not use str() or summary() far less informative
 
 #Normalization info:
 #When you first create a DGEList object, all the normalization factors are initially set to 1 by default. 
@@ -24,16 +13,14 @@ rm(list=ls())
 ### CAREFUL! MANY DOWNSTREAM ANALYSIS RELY ON ORDER OF SAMPLES. MAKE SURE THAT ALL THIS FILES HAVE THE SAMPLES SORTED IN THE SAME ORDER!
 #PREFERABLY IN ALPHABETICAL ORDER OR SORTED FROM SMALLER TO LARGEST.
 
-#No deixis els meus paths a l'arxiu que posis al TFM...
-counts <- read.table("/Users/mbarcelo/Dropbox/KarenTFM/Codi_R/RSEM_counts.txt", header = TRUE, row.names = 1)
-summary(counts)
 
-#Aquests dos arxius que hi ha a continuació es podrien condensar amb un que tengui tota la info... 
-#Ho pots canviar si vols, pero pensa que si ho canvies també ho has de canviar a la resta de script on es facin servir les variables que fan referència a aquests arxius
-info_samples <- read.table("/Users/mbarcelo/Dropbox/KarenTFM/Codi_R/samples.txt", header = TRUE)
+counts <- read.table("/Users/KAREN/RSEM_counts.txt", header = TRUE, row.names = 1)
+summary(counts)
+ 
+info_samples <- read.table("/Users/Karen/samples.txt", header = TRUE)
 summary(info_samples)
 
-samples <- read.table("/Users/mbarcelo/Dropbox/KarenTFM/Codi_R/samples_edgeR.txt", header = TRUE)
+samples <- read.table("/Users//Karen/samples_edgeR.txt", header = TRUE)
 samples$Sex <- as.factor(samples$Sex)
 
 summary(samples)
@@ -46,7 +33,6 @@ y <- DGEList(counts = counts, group = NULL, lib.size = info_samples$mapped, samp
 logCPM <- cpm(y, log= TRUE)
 plotDensities(logCPM, legend = FALSE,  main = "Before Filtering")
 #Genes before filter: 26690
-
 
 ######## FILTER
 ## Low read counts. 
@@ -118,11 +104,6 @@ Sex <- samples$Sex
 design <- model.matrix(~ AO*Sex)
 
 
-#Check with voom plot if filtering was good enough 
-#We can ingore this for now.... No need to mention in the TFM
-v <- voom(y, design, plot=TRUE)
-
-
 #Fitting the linear model using the normalized counts and the experimental design:
 
 fit <- lmFit(normalized_matrix, design)
@@ -142,7 +123,6 @@ hist(fit$p.value[,2]) #, xlim = c(0, 0.05))
 #We need to do a multiple test adjustment of p-values.
 #In the literature the BH correction is found to be the most robust.
 
-#I finally understood what the term coef was! 
 #In this case you are suposed to use the coeficients of the variable you want to adjust the p-value!
 #coef = 2 corresponds to the coefficients of the second variable AO (the first one is the intercept)
 #coef = 3 corresponds to the coefficients of the third variable Sex
@@ -157,15 +137,15 @@ resultsSex <- topTable(fit, coef = 3, number = 10, adjust.method = "BH")
 #Results with adjusted p-values for interaction AO*Sex
 resultsAO_Sex <- topTable(fit, coef = 4, number = 10, adjust.method = "BH")
 
-file_path <- "/Users/mbarcelo/Dropbox/KarenTFM/Codi_R/AO_DE.txt"
+file_path <- "/Users/Karen/AO_DE.txt"
 # Save the table to a text file
 write.table(resultsAO, file = file_path, sep = "\t", quote = FALSE, row.names = TRUE)
 
-file_path <- "/Users/mbarcelo/Dropbox/KarenTFM/Codi_R/Sex_DE.txt"
+file_path <- "/Users/Karen/Sex_DE.txt"
 # Save the table to a text file
 write.table(resultsSex, file = file_path, sep = "\t", quote = FALSE, row.names = TRUE)
 
-file_path <- "/Users/mbarcelo/Dropbox/KarenTFM/Codi_R/AO_Sex_DE.txt"
+file_path <- "/Users/Karen/AO_Sex_DE.txt"
 # Save the table to a text file
 write.table(resultsAO_Sex, file = file_path, sep = "\t", quote = FALSE, row.names = TRUE)
 
