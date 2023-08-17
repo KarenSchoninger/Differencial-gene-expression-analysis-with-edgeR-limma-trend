@@ -33,4 +33,6 @@ The results of the differential expression analysis are stored in three text fil
 - Make sure the file paths in the script are set correctly for your system.
 - The R packages needed for analysis must be installed. If they are not, use `install.packages("package_name")` to install them.
 
+## Bibliography
+[Linear Models for Microarray and RNA-Seq Data User’s Guide](https://web.mit.edu/~r/current/arch/i386_linux26/lib/R/library/limma/doc/usersguide.pdf)
 ---
